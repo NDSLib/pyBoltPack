@@ -1,0 +1,17 @@
+# tree
+test.app
+└── Contents
+    ├── Info.plist
+    └── MacOS
+        ├── core.sh
+        └── main.py
+
+
+1. folder create
+2. /MacOS/venv create
+3. core.sh
+4. pythonfiles copy
+5. requiments.txt venv install
+6. chmod 775
+7. move .app
+
