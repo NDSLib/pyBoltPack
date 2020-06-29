@@ -6,4 +6,5 @@ class A(App):
     def build(self):
         return Button()
 
-A().run()
+if __name__ == '__main__':
+    A().run()

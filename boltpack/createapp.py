@@ -1,25 +1,37 @@
 import subprocess
 import os
 import shutil
+from fileallsearch import fileallsearch
 
 appname = 'test'
 pythonVersion = 'python3'
 
-info_plist = """
+info_plist = """\
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.1">
     <dict>
         <key>CFBundleExecutable</key>
-        <string>core.sh</string>
+        <string>core.py</string>
     </dict>
 </plist>
 """
 
-core_sh = """
+core_sh = """\
 #!/bin/sh
 SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 $SCRIPTPATH/venv/bin/python3 {runfile}
+"""
+core_py = """\
+#!/usr/bin/python3
+import subprocess
+import sys
+
+pythonV = sys.argv[0]
+splt = pythonV.split('/')[:-1]
+pythonV = '/'.join(splt)
+cmd = f'{pythonV}/venv/bin/python3 {pythonV}/testapp.py'
+subprocess.run(cmd.split())
 """
 
 def makedir():
@@ -34,8 +46,9 @@ def runfile_copy(paths,runfile):
     for path in paths:
         shutil.copyfile(path,f'./temp/{appname}.app/Contents/MacOS/{path}')
 
-    with open(f'./temp/{appname}.app/Contents/MacOS/core.sh', 'w') as f:
-        f.write(core_sh.format(runfile=runfile))
+    with open(f'./temp/{appname}.app/Contents/MacOS/core.py', 'w') as f:
+        #f.write(core_py.format(runfile=runfile))
+        f.write(core_py)
 
 
 def install_lib(req_file):
@@ -49,19 +62,25 @@ def set_Infoplist():
 
 
 def set_permissions(paths):
-    os.chmod('./temp/{appname}.app/Contents/MacOS/venv',0o775)
-    os.chmod('./temp/{appname}.app/Contents/MacOS/core.sh',0o775)
-    for path in paths:
-        os.chmod(f'./temp/{appname}.app/Contents/MacOS/{path}',0o775)
+    for path in fileallsearch(f'./temp/{appname}.app/Contents/MacOS'):
+        print(path)
+        os.chmod(path,0o755)
+
+    #os.chmod(f'./temp/{appname}.app/Contents/MacOS/venv',0o755)
+    #os.chmod(f'./temp/{appname}.app/Contents/MacOS/core.sh',0o755)
+    #for path in paths:
+    #    os.chmod(f'./temp/{appname}.app/Contents/MacOS/{path}',0o755)
     
 
-def main(paths,runfile):
+def main(paths,runfile,requirements):
     makedir()
     print('makedir ok ')
     createVenv()
     print('create venv ok')
     runfile_copy(paths,runfile)
     print('runfile copy done!')
+    install_lib(requirements)
+    print('install lib done')
     set_Infoplist()
     print('info priset done')
     set_permissions(paths)

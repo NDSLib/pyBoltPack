@@ -2,9 +2,9 @@ import sys
 
 
 def main():
-    path = sys.argv[1]
+    _,path,requirements,*arg = sys.argv
     print('hello boltpack!')
     import createapp
-    createapp.main([path],path)
+    createapp.main([path],path,requirements=requirements)
     print('main.py done')
 
