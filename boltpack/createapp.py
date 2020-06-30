@@ -30,7 +30,7 @@ import sys
 pythonV = sys.argv[0]
 splt = pythonV.split('/')[:-1]
 pythonV = '/'.join(splt)
-cmd = f'{pythonV}/venv/bin/python3 {pythonV}/%s.py'
+cmd = f'{pythonV}/venv/bin/python3 {pythonV}/%s'
 subprocess.run(cmd.split())
 """
 
@@ -48,6 +48,12 @@ def runfile_copy(paths,runfile):
 
     with open(f'./temp/{appname}.app/Contents/MacOS/core.py', 'w') as f:
         #f.write(core_py.format(runfile=runfile))
+        f.write(core_py % runfile)
+
+def rundir_copy(paths,runfile):                  
+    print('rundir_copy',paths,runfile)
+    shutil.copytree(paths,f'./temp/{appname}.app/Contents/MacOS/{paths}')
+    with open(f'./temp/{appname}.app/Contents/MacOS/core.py', 'w') as f:
         f.write(core_py % runfile)
 
 
@@ -73,15 +79,25 @@ def set_permissions(paths):
     #    os.chmod(f'./temp/{appname}.app/Contents/MacOS/{path}',0o755)
     
 
-def main(paths,runfile,requirements):
+def main(runfile=None,paths=None,rundirectory=None,requirements=None):
+    print(runfile,paths,rundirectory,requirements)
+    if not runfile:
+        raise Exception('runfile not found')
     makedir()
     print('makedir ok ')
     createVenv()
     print('create venv ok')
-    runfile_copy(paths,runfile)
-    print('runfile copy done!')
-    install_lib(requirements)
-    print('install lib done')
+    if paths:
+        runfile_copy(paths,runfile)
+        print('runfile copy done!')
+    elif rundirectory:
+        rundir_copy(rundirectory,runfile)
+        print('rundir copy done!')
+    if requirements:
+        install_lib(requirements)
+        print('install lib done')
+    else:
+        print('requirements not found.')
     set_Infoplist()
     print('info priset done')
     set_permissions(paths)
