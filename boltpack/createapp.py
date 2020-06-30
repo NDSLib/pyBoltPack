@@ -30,7 +30,7 @@ import sys
 pythonV = sys.argv[0]
 splt = pythonV.split('/')[:-1]
 pythonV = '/'.join(splt)
-cmd = f'{pythonV}/venv/bin/python3 {pythonV}/testapp.py'
+cmd = f'{pythonV}/venv/bin/python3 {pythonV}/%s.py'
 subprocess.run(cmd.split())
 """
 
@@ -48,7 +48,7 @@ def runfile_copy(paths,runfile):
 
     with open(f'./temp/{appname}.app/Contents/MacOS/core.py', 'w') as f:
         #f.write(core_py.format(runfile=runfile))
-        f.write(core_py)
+        f.write(core_py % runfile)
 
 
 def install_lib(req_file):
@@ -62,6 +62,7 @@ def set_Infoplist():
 
 
 def set_permissions(paths):
+    # FIXME: 全部する必要があるのかは謎
     for path in fileallsearch(f'./temp/{appname}.app/Contents/MacOS'):
         print(path)
         os.chmod(path,0o755)
